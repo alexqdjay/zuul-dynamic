@@ -14,32 +14,35 @@
  * limitations under the License.
  **/
 
-package me.ucake.sc.gateway;
+package me.ucake.zuuldy.core;
 
-import me.ucake.sc.gateway.web.ServerProperties;
-import me.ucake.zuuldy.core.EnableZuulDynamic;
+import lombok.Data;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 
 /**
  *
- * GatewayMain
+ * RouteChangeHandler
  *
  * @author alex.Q
- * @date 2017/8/6
+ * @date 2017/9/15
  */
-@EnableZuulProxy
-@EnableEurekaClient
-@SpringBootApplication
-@EnableZuulDynamic
-public class GatewayMain {
+public @Data class RouteChangeHandler implements InitializingBean {
 
+    @Autowired
+    private RouteStore routeStore;
 
-    public static void main(String[] args) {
-        SpringApplication.run(GatewayMain.class, args);
+    @Autowired
+    private ZuulDynamicMapping zuulDynamicMapping;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (this.routeStore == null) {
+            throw new IllegalStateException("route store is null");
+        }
+
+        this.routeStore.onRoutesChange(routes -> {
+            zuulDynamicMapping.setDirty(true);
+        });
     }
 }

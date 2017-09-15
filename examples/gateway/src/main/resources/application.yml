@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   name: hh
 
 spring:
@@ -20,7 +20,7 @@ zuul:
   routes:
     apps:
       path: /apps/**
-      serviceId: SPRINGCLOUD-APPS
+      serviceId: springcloud-apps
 
 apps:
   ribbon:
