@@ -1,0 +1,4 @@
+rootProject.name = 'zuul-dynamic'
+include 'examples:apps',
+    'examples:gateway',
+        'core'
