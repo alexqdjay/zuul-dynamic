@@ -1,5 +1,5 @@
 language: java
-sudo: enable
+sudo: enabled
 before_script:
   - chmod +x gradlew 
 jdk:
