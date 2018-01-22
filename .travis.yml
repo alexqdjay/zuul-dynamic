@@ -1,9 +1,8 @@
 language: java
-sudo: enabled
-before_install:
-  - chmod +x gradlew
+sudo: false
+
 jdk:
   - oraclejdk8
 
 script:
-  - ./gradlew --info check
+  - gradle --info check
