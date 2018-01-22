@@ -1,4 +1,141 @@
+apply plugin: 'maven'
+apply plugin: 'signing'
+
 dependencies {
     compile('org.springframework.cloud:spring-cloud-starter-zuul')
-    compile group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.18'
 }
+
+group = 'com.github.alexqdjay'
+version = '1.0.0'
+
+jar {
+    baseName "zuul-dynamic";
+}
+
+//model {
+//    tasks.generatePomFileForMavenCustomPublication {
+//        destination = file("$buildDir/generated-pom.xml")
+//    }
+//}
+
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            artifactId 'zuul-dynamic'
+//        }
+//    }
+//}
+
+//task javadoc(type: Javadoc) {
+//    source = sourceSets.main.java.srcDirs
+//}
+
+javadoc {
+    failOnError false
+    options{
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        author true
+        version true
+        links "http://docs.oracle.com/javase/8/docs/api"
+        title "swipeJavaDoc"
+    }
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    baseName "zuul-dynamic";
+    from javadoc.destinationDir
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.java.srcDirs
+    classifier = 'sources'
+    baseName "zuul-dynamic";
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+def getRepositoryUsername() {
+    return hasProperty('nexusUsername') ? nexusUsername : ""
+}
+
+def getRepositoryPassword() {
+    return hasProperty('nexusPassword') ? nexusPassword : ""
+}
+
+def isReleaseBuild() {
+    return "${version}".contains("SNAPSHOT") == false
+}
+
+def sonatypeRepositoryUrl
+if (isReleaseBuild()) {
+    println 'RELEASE BUILD'
+    sonatypeRepositoryUrl = hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+            : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+} else {
+    println 'SNAPSHOT BUILD'
+    sonatypeRepositoryUrl = hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+            : "https://oss.sonatype.org/content/repositories/snapshots/"
+
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: sonatypeRepositoryUrl) {
+                authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
+            }
+            pom.project {
+
+                name "zuul-dynamic"
+                url "https://github.com/alexqdjay/zuul-dynamic"
+                inceptionYear "2017"
+                description "a plugin help zuul load route dynamically"
+                groupId 'com.github.alexqdjay'
+                version '1.0.0'
+
+
+                scm {
+                    url "https://github.com/alexqdjay/zuul-dynamic"
+                    connection "scm:git@github.com:alexqdjay/zuul-dynamic.git"
+                    developerConnection "scm:git@github.com:alexqdjay/zuul-dynamic.git"
+                }
+
+                developers {
+                    developer {
+                        id "alexqdjay"
+                        name "alexqdjay"
+                        email "alexqdjay@163.com"
+                    }
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution 'repo'
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+signing {
+    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
+
+//tasks.generatePomFileForMavenCustomPublication {
+//    destination = file("$buildDir/generated-pom.xml")
+//}

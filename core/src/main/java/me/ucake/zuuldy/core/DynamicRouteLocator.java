@@ -30,14 +30,15 @@ import java.util.LinkedHashMap;
  *
  * @author alex.Q
  * @date 2017/9/15
- */
+ **/
 public @Data class DynamicRouteLocator extends DiscoveryClientRouteLocator {
 
-    @Autowired
     private RouteStore routeStore;
 
-    public DynamicRouteLocator(String servletPath, DiscoveryClient discovery, ZuulProperties properties) {
+    public DynamicRouteLocator(RouteStore routeStore, String servletPath, DiscoveryClient discovery, ZuulProperties properties) {
         super(servletPath, discovery, properties);
+
+        this.routeStore = routeStore;
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package me.ucake.zuuldy.core;
 
+import com.netflix.client.config.IClientConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -45,15 +46,17 @@ import java.util.function.Consumer;
 @Configuration
 public class ZuulDynamicConfig {
 
+
     @Bean
     public ZuulDynamicMappingRegister zuulDynamicMappingRegister() {
         return new ZuulDynamicMappingRegister();
     }
 
     @Bean
-    public DynamicRouteLocator dynamicRouteLocator(ServerProperties serverProperties,
+    public DynamicRouteLocator dynamicRouteLocator(RouteStore routeStore,
+            ServerProperties serverProperties,
             ZuulProperties zuulProperties, DiscoveryClient discovery) {
-        return new DynamicRouteLocator(serverProperties.getServletPath(), discovery, zuulProperties);
+        return new DynamicRouteLocator(routeStore, serverProperties.getServletPath(), discovery, zuulProperties);
     }
 
     @ConditionalOnMissingBean(RouteStore.class)
@@ -69,7 +72,25 @@ public class ZuulDynamicConfig {
             public void onRoutesChange(Consumer<List<ZuulProperties.ZuulRoute>> handleFunction) {
                 handleFunction.accept(getAllRoutes());
             }
+
+            @Override
+            public List<ServiceRoute> getAllServiceRoutes() {
+                return Collections.emptyList();
+            }
         };
+    }
+
+
+    @Bean
+    public ServiceRoutes serviceRoutes(RouteStore routeStore) {
+        return new ServiceRoutes(routeStore);
+    }
+
+    @Bean
+    public DynamicServerList dynamicServerList(IClientConfig clientConfig, ServiceRoutes serviceRoutes) {
+        DynamicServerList dynamicServerList = new DynamicServerList(serviceRoutes);
+        dynamicServerList.initWithNiwsConfig(clientConfig);
+        return dynamicServerList;
     }
 
     @Bean

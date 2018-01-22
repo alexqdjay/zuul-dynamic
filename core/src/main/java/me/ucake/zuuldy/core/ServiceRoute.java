@@ -16,24 +16,20 @@
 
 package me.ucake.zuuldy.core;
 
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import lombok.Data;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  *
- * RouteStore
+ * ServiceRoute
  *
  * @author alex.Q
- * @date 2017/9/15
+ * @date 2017/9/20
  */
-public interface RouteStore {
+public @Data class ServiceRoute {
 
-    List<ZuulProperties.ZuulRoute> getAllRoutes();
-
-    void onRoutesChange(Consumer<List<ZuulProperties.ZuulRoute>> handleFunction);
-
-    List<ServiceRoute> getAllServiceRoutes();
+    private String serviceId;
+    private List<String> routes;
 
 }

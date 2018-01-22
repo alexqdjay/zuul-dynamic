@@ -24,8 +24,8 @@ zuul:
 
 apps:
   ribbon:
-    listOfServers: example.com,google.com
+    listOfServers: 127.0.0.1:8080,localhost:8080
 
 ribbon:
   eureka:
-    enabled: true
+    enabled: false
