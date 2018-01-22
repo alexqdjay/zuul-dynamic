@@ -1,6 +1,7 @@
 language: java
-sudo: false
-
+sudo: enable
+before_script:
+  - chmod +x gradlew 
 jdk:
   - oraclejdk8
 
