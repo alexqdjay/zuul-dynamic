@@ -6,8 +6,10 @@ jdk:
 before_install:
   - chmod +x gradlew
 
+install: true
+
 script:
-  - gradle check
+  - ./gradlew --info check
   
 
 
