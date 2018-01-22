@@ -1,4 +1,7 @@
 # zuul-dynamic
+
+![](https://travis-ci.org/alexqdjay/zuul-dynamic.svg?branch=master)
+
 > zuul dynamic routes  
 可以让zuul实现动态加载路由的小插件 
 
